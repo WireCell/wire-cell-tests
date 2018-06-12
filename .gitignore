@@ -1,0 +1,7 @@
+*~
+*.pyc
+build
+install
+*.lock*
+*.waf*
+*.npz

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+input="$1"; shift
+output="$1" ; shift
+
+burp () {
+    env
+    echo $PATH
+    pwd
+    echo @SRCDIR@
+
+
+    if [ -f @OUTPUT@ ] ; then
+        echo "warning output exists, removing" 1>&2
+        echo @OUTPUT@ 1>&2
+        rm @OUTPUT@
+    fi
+
+    @WIRECELL@ -V tracklist=@LETTER@wirecheck -V output=$output -c $input
+
+
+}
+burp > log.@LETTER@ 2>&1
+
+
