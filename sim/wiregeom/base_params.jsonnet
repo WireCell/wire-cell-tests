@@ -43,7 +43,7 @@ local wc = import "wirecell.jsonnet";
     elec : {
         gain : 14.0*wc.mV/wc.fC,
         shaping : 2.0*wc.us,
-        postgain: -1.2,
+        postgain: 1.2,
     },
     sim : {
         fluctuate: true,

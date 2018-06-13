@@ -14,9 +14,6 @@ local uboone_params = base_params {
         // Wires have a detector edge at X=0, Z=0, centered in Y.
         center: [0.5*self.extent[0], 0.0, 0.5*self.extent[2]],
     },
-    elec : super.elec {
-        postgain: -1.2,
-    },
     files : {
         wires:"microboone-celltree-wires-v2.1.json.bz2",
         fields:["ub-10-half.json.bz2",

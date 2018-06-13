@@ -39,9 +39,9 @@ for scope in ["signal"
             source=[pyscript, npzfile], target=pdffile)
 
         # a different way to plot
-        pdffile = outname + '-tbplot.pdf'
-        bld(rule='${WIRECELL_GEN} plot-test-boundaries -t 0.8 1.1 ${SRC} ${TGT}',
-            source=npzfile, target=pdffile)
+        # pdffile = outname + '-tbplot.pdf'
+        # bld(rule='${WIRECELL_GEN} plot-test-boundaries -t 0.8 1.1 ${SRC} ${TGT}',
+        #     source=npzfile, target=pdffile)
 
 
         # bld(features = 'test_scripts',

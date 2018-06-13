@@ -8,33 +8,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-f = np.load(npzfile)
-frame = f['frame__0'].T
-channels = f['channels__0']
-bls = (frame.T - np.median(frame, axis=1)).T
+from wirecell.gen.sim import Frame, group_channel_indices
+from wirecell import units
 
-def make_plot(pdf, tickrange, chgrps):
-
-    fig, axes = plt.subplots(nrows=3, ncols=1)
-    t1,t2 = tickrange
-    chgrps.reverse()
-    for plane,(ch1,ch2) in enumerate(chgrps):
-        ax = axes[plane]
-        im = ax.imshow(bls[ch1:ch2,t1:t2],
-                       extent = (t1,t2, ch1, ch2),
-                       aspect='auto', interpolation="nearest")
-        plt.colorbar(im, ax=ax)
-    pdf.savefig(fig)
-    plt.close()
-    
+fp = np.load(npzfile)
+f = Frame(fp)
+changroups = group_channel_indices(f.channels, (2400, 4800))
 
 with PdfPages(pdffile) as pdf:
+    us = units.us
+        
+    tfull = (0,1000*us)
+    tzoom = (870*us, 900*us)
 
-    for tickrange ,chgrps in [
-            [(1700,2200), [(0,2400), (2400, 4800), (4800, 8256)]],
-            [(1700,1800), [(0,1000), (2400, 3400), (4800, 5900)]],
-    ]:
-        make_plot(pdf, tickrange, chgrps)
+    fig, axes = f.plot(tfull[0], tfull[1], chinds=changroups)
+    pdf.savefig(fig)
+    plt.close()
 
-
-
+    for chgrp in changroups:
+        fig, axes = f.plot(tzoom[0], tzoom[1], chinds=(chgrp,))
+        pdf.savefig(fig)
+        plt.close()
