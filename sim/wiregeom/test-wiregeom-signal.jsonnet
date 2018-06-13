@@ -4,7 +4,12 @@ local wc = import "wirecell.jsonnet";
 local tracklist = std.extVar("tracklist");
 local output = std.extVar("output");
 
-local params = import "uboone_params.jsonnet";
+local uboone_params = import "uboone_params.jsonnet";
+local params = uboone_params {
+    sim: super.sim {
+        fluctuate: false,
+    }
+};
 local basics = import "basics.jsonnet";
 local ionodes = import "ionodes.jsonnet";
 local sim = import "simnodes.jsonnet";
@@ -13,8 +18,7 @@ local tracklists = import "tracklists.jsonnet";
 local utils = basics.utils();
 local anodes = basics.anodes(params);
 local savers = ionodes.numpy(params, output);
-local kine = sim.kine(params, tracklists[tracklist]);
-local noise = sim.noise(params,anodes);
+local kine = sim.kine(params, tracklists[tracklist], false);
 local signal = sim.signal(params,anodes);
 local sink = sim.sink(params,anodes);
 
@@ -31,11 +35,6 @@ local edges = kine.edges + [
 ] +signal.edges + [
     {
         tail: signal.output,
-        head: noise.input,
-    }
-] +noise.edges + [
-    {
-        tail: noise.output,
         head: {node: wc.tn(sink.digitizer)},
     },
     {
@@ -59,5 +58,5 @@ local app = {
 };
 local extra = [savers.depo, savers.frame, sink.digitizer, sink.sink, app];
 
-utils.cfgseq + anodes.cfgseq + kine.cfgseq + noise.cfgseq + signal.cfgseq + extra
+utils.cfgseq + anodes.cfgseq + kine.cfgseq + signal.cfgseq + extra
 

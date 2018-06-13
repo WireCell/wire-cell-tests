@@ -1,39 +1,56 @@
 
-for letter in "uvw":
-    npzfile = 'test-wiregeom-%splane.npz' % letter
-    pdffile = npzfile.replace('.npz','.pdf')
+basename = 'test-wiregeom'
+# loop over different main jsonnet files
+for scope in ["signal"
+              #,"noise
+              ]:
 
-    shscript = 'test_%s_wiregeom.sh' % letter
-    pyscript = shscript.replace('.sh','.py')
+    inname = '%s-%s' % (basename, scope)
+    for letter in "uvw":
 
-    # bakes the letter and location of wire-cell into the script
-    bld(features = 'subst',
-        source = 'test_wiregeom.sh.in',
-        target = shscript,
-        SRCDIR = bld.srcnode.abspath(),
-        OUTPUT = npzfile,
-        LETTER = letter)
+        outname = '%s-%splane' % (inname, letter)
 
-    # runs the generated script
-    bld(rule='${BASH} ${SRC} ${TGT}',
-        source=[shscript, 'test_wiregeom.jsonnet'], target=npzfile)
+        jsonnetfile = inname + '.jsonnet'
 
-    bld(features = 'subst',
-        source = 'test_wiregeom.py.in',
-        target = pyscript,
-        LETTER = letter)
+        npzfile = outname + '.npz'
+        pdffile = outname + '-plots.pdf'
 
-    bld(rule='${PYTHON} ${SRC} ${TGT}',
-        source=[pyscript, npzfile], target=pdffile)
+        shscript = 'test_%s_wiregeom.sh' % letter
+        pyscript = shscript.replace('.sh','.py')
+
+        # bakes the letter and location of wire-cell into the script
+        bld(features = 'subst',
+            source = 'test_wiregeom.sh.in',
+            target = shscript,
+            SRCDIR = bld.srcnode.abspath(),
+            OUTPUT = npzfile,
+            LETTER = letter)
+
+        # runs the generated script
+        bld(rule='${BASH} ${SRC} ${TGT}',
+            source=[shscript, jsonnetfile], target=npzfile)
+
+        bld(features = 'subst',
+            source = 'test_wiregeom.py.in',
+            target = pyscript,
+            LETTER = letter)
+
+        bld(rule='${PYTHON} ${SRC} ${TGT}',
+            source=[pyscript, npzfile], target=pdffile)
+
+        # a different way to plot
+        pdffile = outname + '-tbplot.pdf'
+        bld(rule='${WIRECELL_GEN} plot-test-boundaries -t 0.8 1.1 ${SRC} ${TGT}',
+            source=npzfile, target=pdffile)
 
 
-    # bld(features = 'test_scripts',
-    #     target = npzfile,
-    #     test_scripts_source = shscript,
-    #     test_scripts_template = '${BASH} ${SCRIPT}')
-    
-    # bld(features = 'test_scripts',
-    #     source = npzfile,
-    #     target = pdffile,
-    #     test_scripts_source = pyscript,
-    #     test_scripts_template = '${PYTHON} ${SCRIPT}')
+        # bld(features = 'test_scripts',
+        #     target = npzfile,
+        #     test_scripts_source = shscript,
+        #     test_scripts_template = '${BASH} ${SCRIPT}')
+
+        # bld(features = 'test_scripts',
+        #     source = npzfile,
+        #     target = pdffile,
+        #     test_scripts_source = pyscript,
+        #     test_scripts_template = '${PYTHON} ${SCRIPT}')

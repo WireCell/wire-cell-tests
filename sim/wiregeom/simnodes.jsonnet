@@ -3,7 +3,7 @@ local ar39 = import "ar39.jsonnet";
 local v = import "vector.jsonnet";
 
 {
-    kine(params, tracklist)::
+    kine(params, tracklist, with_blips=true)::
     //
     // Define some regions and use them for regions in which to generate Ar39 events
     //
@@ -65,7 +65,7 @@ local v = import "vector.jsonnet";
     // configuration so just name them here to refer to them later.
     local joincb = { type: "DepoMerger", name: "CosmicBlipJoiner" };
     // local joincbb = { type: "DepoMerger", name: "CBBlipJoiner" };
-    {
+    if with_blips then {
         edges: [
             {
                 tail: { node: wc.tn(tracks) },
@@ -78,7 +78,13 @@ local v = import "vector.jsonnet";
         ],
         output: { node: wc.tn(joincb)},
         cfgseq: [ joincb, tracks, blips, ],
-    },                          // kine
+    }
+    else {
+        edges: [ ],
+        output: { node: wc.tn(tracks)},
+        cfgseq: [ tracks, ],
+    },
+        
 
     //
     // noise simulation parts

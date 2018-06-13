@@ -1,0 +1,56 @@
+#+title: Wire Cell Toolkit Tests
+
+* What's here
+
+This area is to hold optional test code which:
+
+- requires more time than is convenient to run in a "real" unit test
+
+- requires input files 
+
+- may be best expressed as a chain or DAG of jobs connected by files
+
+- the effort to add them into wire-cell-validate is not yet available
+
+* What's needed
+
+In general, the tests assume the environment in which they run provide installed:
+
+ - Python packages ~numpy~ and ~matplotlib~.
+ - WCT libraries and main command line interface ~wire-cell~.
+ - WCT's ~wirecell-*~ main commands from ~wire-cell-python~.
+ - WCT's ~WIRECELL_PATH~ including directories holding ~wire-cell-cfg~ and ~wire-cell-data~ contents.
+ - Access to previously prepared data files, although tests are encouraged to use simulation to generate fodder.
+
+Note, these tests must explicitly not depend on any WCT application other than ~wire-cell~.
+
+* How to provide setup
+
+- general WCT installation and runtime https://wirecell.github.io/manual.html
+- for Python related: https://github.com/WireCell/wire-cell-python
+
+** Nix
+
+If one uses Nix to provide externals, runtime is set up like:
+
+#+BEGIN_EXAMPLE
+  $ nix-shell -p python27Packages.matplotlib -p python27Packages.virtualenv
+  $ virtualenv venv
+  $ source venv/bin/activate
+  $ pushd ~/dev/wct/src/python/
+  $ python setup.py develop
+  $ popd
+#+END_EXAMPLE
+
+After first time, just the ~nix-shell~ and ~source~ commands need repeating.
+
+
+* Exercising
+
+#+BEGIN_EXAMPLE
+  $ ./waf configure
+  $ ./waf -p --alltests -vv --dump-test-scripts
+  $ tree build
+#+END_EXAMPLE
+
+All flags in the second command are optional.  The last command just lists the results.
