@@ -54,3 +54,31 @@ After first time, just the ~nix-shell~ and ~source~ commands need repeating.
 #+END_EXAMPLE
 
 All flags in the second command are optional.  The last command just lists the results.
+
+* Tests
+
+A possibly incomplete list of tests:
+
+** [[./sim/wiregeom]]  
+
+This does three simulation runs which place ideal, short tracks at
+specific locations to test the U, V and W plane responses,
+respectively.  noise is turned off so only channels with signal are in
+the output frame.  Results in files
+~build/sim/wiregeom/test-wiregeom-signal-[uvw]plane-plots.pdf~
+
+For each plane, check
+
+1) shape of raw waveform for each little track.  For the plane tested,
+   each track should produce a response that is seen mostly in just
+   one channel.  Other planes will see some spread over channels.
+   Note, simulation includes field responses for some shorted/grounded
+   wires so one should see some variability in the shapes in some channels.
+
+2) separation in channel. For the plane tested, the peak waveform
+   should be 10 channels apart.
+
+
+** [[./sim/six]]
+
+This tests the ability for simulate protoDUNE-SP with six APAs.
