@@ -58,12 +58,12 @@ local depos = {
             {
                 time: 0.0*wc.us,
                 charge: -5000, // negative means charge per step
-                ray: wc.ray(wc.point(100,50,zstart,wc.mm), wc.point(200,50,zend,wc.mm))
+                ray: wc.ray(wc.point(100,50,6500,wc.mm), wc.point(110,50,6510,wc.mm))
             },
             {
                 time: 50.0*wc.us,
                 charge: -5000, // negative means charge per step
-                ray: wc.ray(wc.point(100,-50,zstart,wc.mm), wc.point(200,-50,zend,wc.mm))
+                ray: wc.ray(wc.point(100,-50,6500,wc.mm), wc.point(110,-50,6510,wc.mm))
             },
         ]
     }
@@ -93,7 +93,7 @@ local ductors = [
 
 local multi_ductor_chain = [
     {
-        ductor: wc.tn(ductors[2]),
+        ductor: wc.tn(ductors[1]),
         rule: "wirebounds",
         args: [ 
             [ { plane:0, min:296, max:296 } ],
@@ -190,6 +190,7 @@ local frame_joiner = {
     type: "FrameFanin",
     data: {
         multiplicity: 2,
+        tags: ["simulation", "truth"], // needs to match order of fanin edges 
     }
 };
 local base_saver = {
@@ -197,7 +198,7 @@ local base_saver = {
         filename: "uboone-wctsim-signal-noise-truth-%(digi)s.npz" % {
             digi: if params.sim.digitize then "adc" else "volts",
         },
-        frame_tags: [""],       // untagged.
+        frame_tags: ["simulation", "truth"],       // untagged.
         scale: if params.sim.digitize then 1.0 else wc.uV,
     },
 };
