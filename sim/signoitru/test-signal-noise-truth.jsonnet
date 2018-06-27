@@ -178,7 +178,13 @@ local frame_summer = {
         offset: 0.0*wc.s,
     }
 };
-local noise = [static_csdb, noise_model, noise_source, frame_summer];
+local digitizer = {
+    type: "Digitizer",
+    data : params.adc {
+        anode: wc.tn(anodes[0]),
+    },
+};
+local noise = [static_csdb, noise_model, noise_source, frame_summer, digitizer];
 
 local truth_ductor = {
     type: "Truth",
@@ -234,6 +240,10 @@ local edges = [
     },
     {
         tail: {node: wc.tn(frame_summer)},
+        head: {node: wc.tn(digitizer)},
+    },
+    {
+        tail: {node: wc.tn(digitizer)},
         head: {node: wc.tn(frame_joiner), port:0},
     },
     {
