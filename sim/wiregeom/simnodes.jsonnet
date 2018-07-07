@@ -136,7 +136,7 @@ function(params, tools, tracklist)
     // Copy-paste the plane:0 and plane:2 in uv_ground and vy_ground, respectively
     local uboone_ductor_chain = [
         {
-            ductor: wc.tn($.ductors[1]),
+            ductor: $.ductors[1].name,
             rule: "wirebounds",
             args: [ 
                 [ { plane:0, min:296, max:296 } ],
@@ -163,7 +163,7 @@ function(params, tools, tracklist)
         },
 
         {
-            ductor: wc.tn($.ductors[2]),
+            ductor: $.ductors[2].name,
             rule: "wirebounds",
             args: [
                 [ { plane:2, min:2336, max:2399 } ],
@@ -172,7 +172,7 @@ function(params, tools, tracklist)
             ],
         },
         {               // catch all if the above do not match.
-            ductor: wc.tn($.ductors[0]),
+            ductor: $.ductors[0].name,
             rule: "bool",
             args: true,
         },

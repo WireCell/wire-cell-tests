@@ -2,6 +2,7 @@
 
 input="$1"; shift
 output="$1" ; shift
+log="${output}.log"
 
 burp () {
     env
@@ -16,10 +17,9 @@ burp () {
         rm @OUTPUT@
     fi
 
-    @WIRECELL@ -V tracklist=@LETTER@wirecheck -V output=$output -c $input
-
-
+    echo " @WIRECELL@ -V tracklist=@LETTER@wirecheck -V output=$output -c $input "
+    @WIRECELL@ -V tracklist=@LETTER@wirecheck -V output=$output -c $input || exit 1
 }
-burp > log.@LETTER@ 2>&1
+burp > $log 2>&1
 
 
