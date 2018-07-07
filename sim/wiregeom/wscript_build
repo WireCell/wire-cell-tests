@@ -1,9 +1,7 @@
 
 basename = 'test-wiregeom'
 # loop over different main jsonnet files
-for scope in ["signal"
-              #,"noise
-              ]:
+for scope in ["signal","full"]:
 
     inname = '%s-%s' % (basename, scope)
     for letter in "uvw":

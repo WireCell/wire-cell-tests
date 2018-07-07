@@ -1,62 +1,45 @@
 local wc = import "wirecell.jsonnet";
+local g = import "pgraph.jsonnet";
 
 // user picks based on "tracklist" external
 local tracklist = std.extVar("tracklist");
 local output = std.extVar("output");
 
+
 local uboone_params = import "uboone_params.jsonnet";
 local params = uboone_params {
     sim: super.sim {
-        fluctuate: false,
+        fluctuate: false,       // override to give clean signal for debugging
     }
 };
-local basics = import "basics.jsonnet";
+local common = import "common.jsonnet";
+local tools = common(params);
+
+
 local ionodes = import "ionodes.jsonnet";
-local sim = import "simnodes.jsonnet";
+local io = ionodes(params, output);
+
+local simnodes = import "simnodes.jsonnet";
 local tracklists = import "tracklists.jsonnet";
+local sim = simnodes(params, tools, tracklists[tracklist]);
 
-local utils = basics.utils();
-local anodes = basics.anodes(params);
-local savers = ionodes.numpy(params, output);
-local kine = sim.kine(params, tracklists[tracklist], false);
-local signal = sim.signal(params,anodes);
-local sink = sim.sink(params,anodes);
-
-
-local edges = kine.edges + [
-    {
-        tail: kine.output,
-        head: {node: wc.tn(savers.depo)},
-    },
-    {
-        tail: {node: wc.tn(savers.depo)},
-        head: signal.input,
-    }
-] +signal.edges + [
-    {
-        tail: signal.output,
-        head: {node: wc.tn(sink.digitizer)},
-    },
-    {
-        tail: { node: wc.tn(sink.digitizer) },
-        head: { node: wc.tn(savers.frame) },
-    },
-    {                   // terminate the stream
-        tail: { node: wc.tn(savers.frame) },
-        head: { node: wc.tn(sink.sink) },
-    },
+local pipeline_elements = [
+    sim.tracks,
+    io.depos,
+    sim.drifter,
+    sim.ductors[0],
+    sim.digitizer,
+    io.frames,
+    sim.frame_sink,
 ];
-
+local graph = g.pipeline(pipeline_elements);
 
 // Here the nodes are joined into a graph for execution by the main
 // app object.  
 local app = {
     type: "Pgrapher",
     data: {
-        edges: edges,
+        edges: graph.edges,
     }
 };
-local extra = [savers.depo, savers.frame, sink.digitizer, sink.sink, app];
-
-utils.cfgseq + anodes.cfgseq + kine.cfgseq + signal.cfgseq + extra
-
+[tools.cmdline] + graph.uses + [app]

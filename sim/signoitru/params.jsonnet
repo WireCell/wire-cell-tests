@@ -43,6 +43,10 @@ local wc = import "wirecell.jsonnet";
         postgain: 1.2,
     },
     sim : {
+        tick: $.daq.tick,
+        nticks: $.daq.ticks_per_readout,
+        response_plane: 10*wc.cm - 6*wc.mm,
+        cathode_plane: $.detector.extent[0],
         fluctuate: true,
         digitize: true,
         noise: true,

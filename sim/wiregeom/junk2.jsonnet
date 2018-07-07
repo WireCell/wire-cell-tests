@@ -1,4 +1,0 @@
-{
-    zzz : "mattress",
-    xxx: x
-}

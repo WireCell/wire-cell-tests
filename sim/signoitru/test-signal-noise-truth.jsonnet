@@ -32,18 +32,36 @@ local wires = {
 };
 
 // 0:nominal, 1:uv-grounded, 2:vy-grounded
-local anodes = [
-    {
-        type : "AnodePlane",
-        name : "anode%d" % n,
-        data : params.elec + params.daq {
-            ident : 0,              // must match what's in wires
-            field_response: wc.tn(fields[n]),
-            wire_schema: wc.tn(wires),
-            cathode: [{x:params.detector.extent[0], y:0.0, z:0.0}]
-        }
-    } for n in [0,1,2]];
-local shared = [cmdline, random, wires] + fields + anodes;
+local anode {
+    type : "AnodePlane",
+    data : params.elec + params.daq {
+        ident : 0,              // must match what's in wires
+        wire_schema: wc.tn(wires),
+        faces : [
+            { 
+                response: params.sim.response_plane,
+                cathode: params.sim.cathode_plane,
+            },
+        ],
+    },
+};
+local pirs : std.mapWithIndex(function (n, fr) [
+        {
+            type: "PlaneImpactResponse",
+            name : "PIR%splane%d" % [fr.name, plane],
+            data : {
+                plane: plane,
+                tick: params.sim.tick,
+                nticks: params.sim.nticks,
+                field_response: wc.tn(fr),
+                // note twice we give rc so we have rc^2 in the final convolution
+                other_responses: [wc.tn($.elec_resp), wc.tn($.rc_resp), wc.tn($.rc_resp)],
+            },
+            uses: [fr, $.elec_resp, $.rc_resp],
+        } for plane in [0,1,2]], $.fields),
+
+  
+local shared = [cmdline, random, wires] + fields + [anode];
 
 //
 //  Some basic/bogus "cosmic rays"
@@ -80,6 +98,7 @@ local fanout = {
         multiplicity: 2,
     }
 };
+
 local ductors = [
     {
         type : 'Ductor',
@@ -87,9 +106,20 @@ local ductors = [
         data : params.daq + params.lar + params.sim {
             continuous: false,
             nsigma : 3,
-	    anode: wc.tn(anodes[n]),
+	    anode: wc.tn(anode),
         }
     } for n in [0,1,2]];
+
+local ductors = std.mapWithIndex(function (n, pirs) {
+    type: 'Ductor',
+    name: 'ductor%d' % n,
+    data: par.daq + par.lar + par.sim {
+        rng: wc.tn(random),
+        anode: wc.tn(anode),
+        pirs: std.map(function(pir) wc.tn(pir), pirs),
+    },
+    uses: [random, anode] + pirs,
+}, com.pirs);
 
 local multi_ductor_chain = [
     {
